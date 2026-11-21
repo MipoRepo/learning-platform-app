@@ -1,0 +1,39 @@
+{
+  "course_id": "fast-english-b1-c2",
+  "available_languages": ["fi", "en"],
+  "default_language": "fi",
+  "titles": {
+    "fi": "Fast English (B1 → C2) – Tehokurssi",
+    "en": "Fast English (B1 → C2) – Intensive Course"
+  },
+  "descriptions": {
+    "fi": "Kattava ja tiivis englannin kielen teho-ohjelma keskitasolta (B1) natiivimaiselle C2-tasolle.",
+    "en": "A comprehensive, high-impact English program designed to take you from intermediate (B1) to near-native (C2) fluency."
+  },
+  "estimated_hours": 36,
+  "modules": [
+    {
+      "module_id": "01-perusrakenteet",
+      "order": 1,
+      "titles": {
+        "fi": "1. Lauseen perusrakenteet ja sanajärjestys",
+        "en": "1. Core Sentence Structures & Word Order"
+      },
+      "lessons": [
+        {
+          "lesson_id": "01-01",
+          "order": 1,
+          "titles": {
+            "fi": "1.1 Sanajärjestys (SVOMPT)",
+            "en": "1.1 Word Order (SVOMPT)"
+          },
+          "files": {
+            "fi": "fi/01-perusrakenteet/01-01-sanajarjestys.json",
+            "en": "en/01-basic-structures/01-01-word-order.json"
+          },
+          "estimated_minutes": 30
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "preferences": {
+    "ui_language": "fi",
+    "theme": "light"
+  },
+  "courses": {
+    "fast-english-b1-c2": {
+      "preferred_course_language": "fi",
+      "completed_lessons": []
+    }
+  }
+}
