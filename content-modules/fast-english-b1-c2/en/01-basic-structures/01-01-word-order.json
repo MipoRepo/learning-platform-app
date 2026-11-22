@@ -1,0 +1,39 @@
+{
+  "lesson_id": "01-01",
+  "language": "en",
+  "title": "1.1 Word Order (SVOMPT)",
+  "estimated_minutes": 30,
+  "blocks": [
+    {
+      "id": "b1",
+      "type": "heading",
+      "text": "The Golden Rule of English Sentences: SVOMPT",
+      "level": 2
+    },
+    {
+      "id": "b2",
+      "type": "paragraph",
+      "text": "Unlike flexible word-order languages, English relies heavily on strict word order to convey meaning. Standard declarative sentences follow the SVOMPT sequence."
+    },
+    {
+      "id": "b3",
+      "type": "table",
+      "headers": ["Letter", "Element", "Question", "Example"],
+      "rows": [
+        ["S", "Subject", "Who / what?", "She"],
+        ["V", "Verb", "Does what?", "studied"],
+        ["O", "Object", "What / whom?", "English grammar"],
+        ["M", "Manner", "How?", "carefully"],
+        ["P", "Place", "Where?", "at the library"],
+        ["T", "Time", "When?", "yesterday"]
+      ]
+    },
+    {
+      "id": "b4",
+      "type": "callout",
+      "text": "Never place an adverb of manner or place between the verb and its object: say 'I speak English well', not 'I speak well English'.",
+      "variant": "tip",
+      "title": "Key Rule"
+    }
+  ]
+}

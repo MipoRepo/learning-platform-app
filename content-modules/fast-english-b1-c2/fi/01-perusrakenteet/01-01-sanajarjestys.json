@@ -1,0 +1,19 @@
+{
+  "lesson_id": "01-01",
+  "language": "fi",
+  "title": "1.1 Sanajärjestys (SVOMPT)",
+  "estimated_minutes": 30,
+  "blocks": [
+    {
+      "id": "b1",
+      "type": "heading",
+      "text": "Englannin perussanajärjestys",
+      "level": 2
+    },
+    {
+      "id": "b2",
+      "type": "paragraph",
+      "text": "Englannissa peruslauseen sanajärjestys on yleensä subjekti + verbi + objekti."
+    }
+  ]
+}
