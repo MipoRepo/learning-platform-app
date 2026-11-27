@@ -6,7 +6,7 @@ edistymisen backendin kautta `data/progress.json`-tiedostoon.
 
 ## Vaatimukset
 
-* Node.js 20.19 tai uudempi
+* Node.js 24 LTS (suositus) tai 20.19 / 22.13
 * npm
 * Käynnissä oleva backend osoitteessa `http://localhost:8000`
 
