@@ -78,6 +78,18 @@ def write_progress_data(progress_data: dict) -> None:
         json.dump(progress_data, file, ensure_ascii=False, indent=2)
 
 
+# Apufunktio, joka etsii oppituntiviitteen kurssin moduuleista tunnisteen perusteella
+def find_lesson_reference(course_data: dict, lesson_id: str) -> Optional[dict]:
+    # Käydään läpi kaikki moduulit ja niiden oppitunnit
+    for module in course_data.get("modules", []):
+        for lesson in module.get("lessons", []):
+            # Palautetaan heti, kun tunniste täsmää
+            if lesson.get("lesson_id") == lesson_id:
+                return lesson
+    # Palautetaan None, jos oppituntia ei löytynyt
+    return None
+
+
 # Apufunktio, joka laskee kurssin kaikkien oppituntien yhteismäärän
 def count_course_lessons(course_data: dict) -> int:
     total = 0
@@ -161,15 +173,8 @@ def get_lesson(
     # Valitaan pyydetty kieli tai kurssin oletuskieli
     selected_lang = lang or course_data.get("default_language", "fi")
 
-    # Etsitään oppitunti kurssin moduuleista
-    found_lesson = None
-    for module in course_data.get("modules", []):
-        for lesson in module.get("lessons", []):
-            if lesson.get("lesson_id") == lesson_id:
-                found_lesson = lesson
-                break
-        if found_lesson:
-            break
+    # Etsitään oppitunti kurssin moduuleista apufunktion avulla
+    found_lesson = find_lesson_reference(course_data, lesson_id)
 
     # Jos oppituntia ei löydy kurssista, palautetaan 404 Not Found
     if not found_lesson:
@@ -237,6 +242,14 @@ def mark_lesson_completed(course_id: str, lesson_id: str):
         manifest_path,
         f"Kurssia '{course_id}' ei löytynyt.",
     )
+
+    # Varmistetaan, että oppitunti on olemassa kurssissa ennen edistymisen tallentamista
+    if find_lesson_reference(course_data, lesson_id) is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Oppituntia '{lesson_id}' ei löytynyt kurssista '{course_id}'.",
+        )
+
     total_lessons = count_course_lessons(course_data)
 
     progress_store = read_progress_data()
@@ -278,6 +291,14 @@ def unmark_lesson_completed(course_id: str, lesson_id: str):
         manifest_path,
         f"Kurssia '{course_id}' ei löytynyt.",
     )
+
+    # Varmistetaan, että oppitunti on olemassa kurssissa ennen poistoa
+    if find_lesson_reference(course_data, lesson_id) is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Oppituntia '{lesson_id}' ei löytynyt kurssista '{course_id}'.",
+        )
+
     total_lessons = count_course_lessons(course_data)
 
     progress_store = read_progress_data()

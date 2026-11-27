@@ -30,6 +30,19 @@ COURSE_ID = "fast-english-b1-c2"
 LESSON_ID = "01-01"
 
 
+# Apufunktio, joka lukee testattavan kurssin course.json-tiedoston
+def load_course_data() -> dict:
+    manifest_path = main.CONTENT_DIR / COURSE_ID / "course.json"
+    return json.loads(manifest_path.read_text(encoding="utf-8"))
+
+
+# Apufunktio, joka laskee odotetun prosentin suoritettujen määrän perusteella
+def expected_completion_percentage(completed_count: int) -> float:
+    course_data = load_course_data()
+    total_lessons = main.count_course_lessons(course_data)
+    return main.calculate_completion_percentage(completed_count, total_lessons)
+
+
 # Fixture, joka antaa jokaiselle testille oman väliaikaisen progress.json-tiedoston.
 # Näin testit eivät muuta oikeaa data/progress.json-tiedostoa.
 @pytest.fixture
@@ -52,7 +65,7 @@ def test_health_endpoint():
     assert response.json()["status"] == "ok"
 
 
-# Testaa, että kaikki content-modules-kansion JSON-tiedostot läpäisevät Pydantic-validoinnin
+# Testaa, että kaikki course.json-tiedostot ja niiden viittaamat oppitunnit validoituvat
 def test_all_content_json_files_validate():
     # Kerätään kaikki kurssien course.json-tiedostot ja varmistetaan, ettei lista ole tyhjä
     course_files = list(main.CONTENT_DIR.glob("*/course.json"))
@@ -64,16 +77,22 @@ def test_all_content_json_files_validate():
     # Käydään läpi jokainen kurssikansio ja sen course.json-tiedosto
     for course_file in course_files:
         course_data = json.loads(course_file.read_text(encoding="utf-8"))
-        CourseManifest(**course_data)
+        manifest = CourseManifest(**course_data)
 
-        # Käydään läpi saman kurssin kaikki muut JSON-tiedostot eli oppitunnit
-        for lesson_file in course_file.parent.rglob("*.json"):
-            if lesson_file.name == "course.json":
-                continue
+        # Käydään läpi vain ne oppituntitiedostot, joihin course.json todella viittaa
+        for module in manifest.modules:
+            for lesson in module.lessons:
+                for language, relative_path in lesson.files.items():
+                    lesson_path = course_file.parent / relative_path
+                    assert lesson_path.exists(), f"Oppituntitiedostoa ei löytynyt: {relative_path}"
 
-            lesson_data = json.loads(lesson_file.read_text(encoding="utf-8"))
-            LessonDetail(**lesson_data)
-            lesson_count += 1
+                    lesson_data = json.loads(lesson_path.read_text(encoding="utf-8"))
+                    lesson_detail = LessonDetail(**lesson_data)
+
+                    # Varmistetaan, että tiedoston tunniste ja kieli vastaavat manifestia
+                    assert lesson_detail.lesson_id == lesson.lesson_id
+                    assert lesson_detail.language == language
+                    lesson_count += 1
 
     # Varmistetaan, että ainakin yksi oppituntitiedosto validoitiin
     assert lesson_count > 0, "oppituntitiedostoja ei löytynyt"
@@ -138,26 +157,59 @@ def test_get_progress_defaults_to_zero(isolated_progress):
 
 # Testaa, että sama POST-pyyntö kahdesti ei lisää oppituntia kahteen kertaan
 def test_progress_post_is_idempotent(isolated_progress):
+    expected_percentage = expected_completion_percentage(1)
+
     first_response = client.post(f"/api/progress/{COURSE_ID}/{LESSON_ID}")
     assert first_response.status_code == 200
     assert first_response.json()["completed_lessons"].count(LESSON_ID) == 1
+    assert first_response.json()["completion_percentage"] == expected_percentage
 
     second_response = client.post(f"/api/progress/{COURSE_ID}/{LESSON_ID}")
     assert second_response.status_code == 200
     assert second_response.json()["completed_lessons"].count(LESSON_ID) == 1
+    assert second_response.json()["completion_percentage"] == expected_percentage
 
-    # Kurssilla on yksi oppitunti, joten yhden suoritus tarkoittaa 100 prosenttia
-    assert second_response.json()["completion_percentage"] == 100.0
+    # Varmistetaan vielä erillisellä GET-pyynnöllä, että tieto todella tallentui
+    get_response = client.get(f"/api/progress/{COURSE_ID}")
+    assert get_response.status_code == 200
+    assert get_response.json()["completed_lessons"].count(LESSON_ID) == 1
+    assert get_response.json()["last_accessed_lesson"] == LESSON_ID
 
 
 # Testaa, että DELETE poistaa suoritusmerkinnän ja palauttaa prosentin nollaan
 def test_progress_delete(isolated_progress):
-    client.post(f"/api/progress/{COURSE_ID}/{LESSON_ID}")
+    # Varmistetaan ensin, että POST onnistuu ennen poistoa
+    post_response = client.post(f"/api/progress/{COURSE_ID}/{LESSON_ID}")
+    assert post_response.status_code == 200
+    assert LESSON_ID in post_response.json()["completed_lessons"]
 
     delete_response = client.delete(f"/api/progress/{COURSE_ID}/{LESSON_ID}")
     assert delete_response.status_code == 200
     assert LESSON_ID not in delete_response.json()["completed_lessons"]
     assert delete_response.json()["completion_percentage"] == 0.0
+
+
+# Testaa, että olemattomalle kurssille ei voi merkitä edistymistä
+def test_progress_post_for_nonexistent_course_returns_404(isolated_progress):
+    response = client.post("/api/progress/olematon-kurssi/01-01")
+    assert response.status_code == 404
+
+
+# Testaa, että olemattomalle oppitunnille ei voi merkitä edistymistä
+def test_progress_post_for_nonexistent_lesson_returns_404(isolated_progress):
+    response = client.post(f"/api/progress/{COURSE_ID}/99-99")
+    assert response.status_code == 404
+
+    # Varmistetaan, että virheellinen pyyntö ei tallentanut mitään edistymistä
+    get_response = client.get(f"/api/progress/{COURSE_ID}")
+    assert get_response.status_code == 200
+    assert get_response.json()["completed_lessons"] == []
+
+
+# Testaa, että olemattoman oppitunnin poisto palauttaa 404 Not Found
+def test_progress_delete_for_nonexistent_lesson_returns_404(isolated_progress):
+    response = client.delete(f"/api/progress/{COURSE_ID}/99-99")
+    assert response.status_code == 404
 
 
 # Testaa prosenttilaskennan tunnetut tapaukset ja nollalla jakamisen eston
@@ -169,6 +221,6 @@ def test_calculate_completion_percentage():
 
 
 # Testaa, että olemattoman kurssin edistyminen palauttaa 404 Not Found
-def test_get_progress_for_nonexistent_course_returns_404():
+def test_get_progress_for_nonexistent_course_returns_404(isolated_progress):
     response = client.get("/api/progress/olematon-kurssi")
     assert response.status_code == 404
