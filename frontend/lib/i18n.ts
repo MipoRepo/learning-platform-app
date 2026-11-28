@@ -10,6 +10,8 @@ export const UI_LANGUAGE_STORAGE_KEY = "ui-language";
 const fi = {
     appName: "Oppimisalusta",
     courseLibrary: "Kurssikirjasto",
+    courseLibraryDescription:
+        "Selaa kursseja ja jatka siitä, mihin jäit. Kurssit avautuvat omille sivuilleen.",
     mainNavigation: "Päänavigaatio",
     openMenu: "Avaa valikko",
     closeMenu: "Sulje valikko",
@@ -18,26 +20,18 @@ const fi = {
     switchToFinnish: "Vaihda suomeksi",
     switchToEnglish: "Vaihda englanniksi",
     toggleTheme: "Vaihda vaalea tai tumma teema",
-    designSystemBadge: "Vaihe F1",
-    designSystemTitle: "Design system ja perusrakenne",
-    designSystemDescription:
-        "Tämä sivu esittelee värit, painikkeet, edistymispalkin ja vinkkilaatikot. Yläpalkin kielivalitsin ja teemakytkin toimivat jo.",
-    buttonsHeading: "Painikkeet",
-    primaryAction: "Ensisijainen toiminto",
-    secondaryAction: "Toissijainen toiminto",
-    ghostAction: "Hiljainen toiminto",
-    progressHeading: "Edistyminen",
-    progressExample: "Esimerkki: 25 % kurssista suoritettu.",
-    calloutsHeading: "Vinkkilaatikot",
-    infoTitle: "Tietoa",
-    infoText:
-        "Tämä on neutraali tietolaatikko, jota käytetään täydentävään sisältöön.",
-    tipTitle: "Vinkki",
-    tipText:
-        "Tämä on vinkkilaatikko, joka korostaa hyödyllistä oivallusta.",
-    warningTitle: "Huomio",
-    warningText:
-        "Tämä on varoituslaatikko, joka kiinnittää huomion tärkeään asiaan.",
+    noCoursesTitle: "Ei kursseja vielä",
+    noCoursesText:
+        "Kurssisisältöä ei löytynyt. Lisää kursseja backendin content-modules-kansioon.",
+    errorTitle: "Kurssien lataus epäonnistui",
+    errorText:
+        "Tarkista, että backend on käynnissä osoitteessa http://localhost:8000 ja yritä uudelleen.",
+    errorRetry: "Yritä uudelleen",
+    progressLabel: "Edistyminen",
+    progressLoading: "Ladataan edistymistä...",
+    progressUnavailable: "Edistyminen ei saatavilla",
+    languagesLabel: "Kielet",
+    estimatedDuration: "Arvioitu kesto",
     openCourse: "Avaa kurssi",
     markCompleted: "Merkitse suoritetuksi",
     markIncomplete: "Poista suoritusmerkintä",
@@ -52,6 +46,8 @@ export type TranslationKey = keyof typeof fi;
 const en: Record<TranslationKey, string> = {
     appName: "Learning Platform",
     courseLibrary: "Course Library",
+    courseLibraryDescription:
+        "Browse courses and pick up where you left off. Each course opens on its own page.",
     mainNavigation: "Main navigation",
     openMenu: "Open menu",
     closeMenu: "Close menu",
@@ -60,25 +56,18 @@ const en: Record<TranslationKey, string> = {
     switchToFinnish: "Switch to Finnish",
     switchToEnglish: "Switch to English",
     toggleTheme: "Switch between light and dark theme",
-    designSystemBadge: "Phase F1",
-    designSystemTitle: "Design system and base layout",
-    designSystemDescription:
-        "This page demonstrates the colors, buttons, progress bar, and callouts. The language selector and theme toggle in the header already work.",
-    buttonsHeading: "Buttons",
-    primaryAction: "Primary action",
-    secondaryAction: "Secondary action",
-    ghostAction: "Ghost action",
-    progressHeading: "Progress",
-    progressExample: "Example: 25% of the course completed.",
-    calloutsHeading: "Callouts",
-    infoTitle: "Information",
-    infoText:
-        "This is a neutral information box used for supplementary content.",
-    tipTitle: "Tip",
-    tipText: "This is a tip box that highlights a useful insight.",
-    warningTitle: "Warning",
-    warningText:
-        "This is a warning box that draws attention to an important detail.",
+    noCoursesTitle: "No courses yet",
+    noCoursesText:
+        "No course content was found. Add courses to the backend's content-modules directory.",
+    errorTitle: "Failed to load courses",
+    errorText:
+        "Check that the backend is running at http://localhost:8000 and try again.",
+    errorRetry: "Try again",
+    progressLabel: "Progress",
+    progressLoading: "Loading progress...",
+    progressUnavailable: "Progress unavailable",
+    languagesLabel: "Languages",
+    estimatedDuration: "Estimated duration",
     openCourse: "Open course",
     markCompleted: "Mark as completed",
     markIncomplete: "Remove completion",
